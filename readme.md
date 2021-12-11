@@ -28,7 +28,7 @@ Installs the required extensions;
 ### Tables
 
 ```
-sql/2-tables.sql
+sql/3-tables.sql
 ```
 
 Creates the tables for our schema;
@@ -43,7 +43,7 @@ Creates the tables for our schema;
 ### Triggers
 
 ```
-sql/3-triggers.sql
+sql/4-triggers.sql
 ```
 
 Sets up the triggers we need;
@@ -54,7 +54,7 @@ Sets up the triggers we need;
 ### Policies
 
 ```
-sql/4-policies.sql
+sql/5-policies.sql
 ```
 
 Sets up the row level security policies we need;
@@ -65,7 +65,7 @@ Sets up the row level security policies we need;
 ### Functions
 
 ```
-sql/5-functions.sql
+sql/6-functions.sql
 ```
 
 Creates the stored procedures we need;
@@ -82,7 +82,7 @@ And the custom types;
 ### Seed
 
 ```
-sql/6-seed.sql
+sql/7-seed.sql
 ```
 
 Generates the SQL dump we can import into our database.

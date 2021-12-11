@@ -1,10 +1,15 @@
 --
 -- postgis
 --
-create extension if not exists postgis schema extensions;
+create extension if not exists postgis;
 
 --
 -- moddatetime
 --
-create extension if not exists moddatetime schema extensions;
+create extension if not exists moddatetime;
+
+--
+-- plv8
+--
+create extension if not exists plv8;
 
