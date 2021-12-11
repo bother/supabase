@@ -86,8 +86,6 @@ create or replace function feed_nearby (latitude float, longitude float)
     posts
   left join comments on comments.post_id = posts.id
   left join votes on votes.post_id = posts.id
-where
-  posts.created_at > now()::date - interval '24 hours'
 group by
   posts.id
 order by
