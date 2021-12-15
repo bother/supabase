@@ -157,7 +157,7 @@ $$;
 --
 -- conversations: update on new message
 --
-create function update_conversation ()
+create or replace function update_conversation ()
   returns trigger
   language plpgsql
   as $$
@@ -168,5 +168,6 @@ begin
     updated_at = now()
   where
     id = new.conversation_id;
+  return new;
 end;
 $$
