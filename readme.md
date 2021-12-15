@@ -49,6 +49,7 @@ sql/4-triggers.sql
 Sets up the triggers we need;
 
 - `conversations_update_timestamp`
+- `messages_update_timestamp_on_conversation`
 - `votes_update_timestamp`
 
 ### Policies
@@ -74,15 +75,30 @@ Creates the stored procedures we need;
 - `feed_latest`
 - `feed_nearby`
 - `fetch_post`
+- `create_post`
+- `start_conversation`
+- `update_conversation`
 
 And the custom types;
 
 - `feed_post`
 
+### Views
+
+> Not used anymore
+
+```
+sql/7-views.sql
+```
+
+Creates the views we need;
+
+- `conversations_with_last_message`
+
 ### Seed
 
 ```
-sql/7-seed.sql
+sql/8-seed.sql
 ```
 
 Generates the SQL dump we can import into our database.
@@ -105,10 +121,3 @@ There's a seed generator script, powered by [`lodash`](https://lodash.com) and [
 If you make any changes to the schema, you need to `yarn clean` to delete the source JSON files so updated data can be generated with `yarn generate`.
 
 Seed data is cached in JSON files so we can reference `post` and `user` ids for `vote`s and `comment`s.
-
-## Todo
-
-- [ ] Policy: `conversations`
-- [ ] Policy: `partners`
-- [ ] Policy: `messages`
-- [ ] Seed: Change `votes`.`vote` to up votes only

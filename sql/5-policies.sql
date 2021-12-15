@@ -72,8 +72,8 @@ create policy "users can create conversations" on conversations
 
 create policy "users can view their own conversations" on conversations
   for select
-    using (user_id = auth.uid ()
-      or recipient_id = auth.uid ());
+    using (auth.uid () = one_id
+      or auth.uid () = two_id);
 
 --
 -- messages
@@ -92,5 +92,5 @@ create policy "users can view messages in their conversations" on messages
       from
         conversations
       where
-        conversations.id = conversation_id and (conversations.user_id = auth.uid () or conversations.recipient_id = auth.uid ())));
+        conversations.id = conversation_id and (conversations.one_id = auth.uid () or conversations.two_id = auth.uid ())));
 

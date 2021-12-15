@@ -8,8 +8,3 @@ create extension if not exists postgis;
 --
 create extension if not exists moddatetime;
 
---
--- plv8
---
-create extension if not exists plv8;
-

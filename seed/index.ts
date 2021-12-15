@@ -22,7 +22,7 @@ const main = async () => {
     )
   )
 
-  await writeFile(`sql/7-seed.sql`, data.join('\n'), 'utf8')
+  await writeFile(`sql/8-seed.sql`, data.join('\n'), 'utf8')
 }
 
 main()
