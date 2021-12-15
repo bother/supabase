@@ -141,8 +141,8 @@ begin
   where
     target_type = "targetType"
     and target_id = "targetId"
-    and (one_id in (auth.uid (), "recipientId")
-      or two_id in (auth.uid (), "recipientId"));
+    and ((one_id in (auth.uid (), "recipientId")
+        or two_id in (auth.uid (), "recipientId")));
   if nextid is not null then
     return nextid;
   end if;
@@ -165,9 +165,57 @@ begin
   update
     conversations
   set
-    updated_at = now()
+    updated_at = now(),
+    one_last_seen = case when one_id = new.user_id then
+      now()
+    else
+      one_last_seen
+    end,
+    two_last_seen = case when two_id = new.user_id then
+      now()
+    else
+      two_last_seen
+    end
   where
     id = new.conversation_id;
   return new;
 end;
-$$
+$$;
+
+--
+-- conversations: fetch post id
+--
+create or replace function fetch_conversation_post ("conversationId" bigint)
+  returns bigint
+  language plpgsql
+  as $$
+declare
+  nextconversation conversations;
+  nextid bigint;
+begin
+  select
+    * into nextconversation
+  from
+    conversations
+  where
+    id = "conversationId"
+    and (one_id = auth.uid ()
+      or two_id = auth.uid ());
+  if nextconversation is null then
+    raise exception 'Conversation not found';
+  end if;
+  if nextconversation.target_type = conversation_target_type.post then
+    return nextconversation.target_id;
+  end if;
+  if nextconversation.target_type = conversation_target_type.comment then
+    select
+      post_id into nextid
+    from
+      comments
+    where
+      id = nextconversation.target_id;
+    return nextid;
+  end if;
+end;
+$$;
+

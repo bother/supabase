@@ -6,11 +6,11 @@ create trigger conversations_update_timestamp
   execute procedure moddatetime (updated_at);
 
 --
--- messages: update conversation
+-- messages: update timestamps on conversations
 --
-create trigger messages_update_timestamp_on_conversation
+create trigger messages_update_timestamps_on_conversations
   after insert on messages for each row
-  execute procedure update_conversation (conversation_id);
+  execute procedure update_conversation ();
 
 --
 -- votes

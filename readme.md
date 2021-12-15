@@ -49,7 +49,7 @@ sql/4-triggers.sql
 Sets up the triggers we need;
 
 - `conversations_update_timestamp`
-- `messages_update_timestamp_on_conversation`
+- `messages_update_timestamps_on_conversations`
 - `votes_update_timestamp`
 
 ### Policies
@@ -78,6 +78,7 @@ Creates the stored procedures we need;
 - `create_post`
 - `start_conversation`
 - `update_conversation`
+- `fetch_conversation_post`
 
 And the custom types;
 
