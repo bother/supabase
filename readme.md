@@ -25,6 +25,17 @@ Installs the required extensions;
 - `postgis`
 - `moddatetime`
 
+### Types
+
+```
+sql/2-types.sql
+```
+
+Creates up the types we need;
+
+- `feed_post`
+- `profile_gender`
+
 ### Tables
 
 ```
@@ -33,11 +44,12 @@ sql/3-tables.sql
 
 Creates the tables for our schema;
 
+- `profiles`
 - `posts`
 - `votes`
 - `comments`
 - `conversations`
-- `partners`
+- `conversation_members`
 - `messages`
 
 ### Triggers
@@ -48,8 +60,8 @@ sql/4-triggers.sql
 
 Sets up the triggers we need;
 
-- `conversations_update_timestamp`
-- `messages_update_timestamps_on_conversations`
+- `on_auth_user_created`
+- `messages_update_timestamp_on_conversations`
 - `votes_update_timestamp`
 
 ### Policies
@@ -58,10 +70,46 @@ Sets up the triggers we need;
 sql/5-policies.sql
 ```
 
-Sets up the row level security policies we need;
+Sets up the row level security policies we need on our tables;
 
-- `conversations_update_timestamp`
-- `votes_update_timestamp`
+#### `profiles`
+
+- `users can view all profiles`
+- `users can update their own profiles`
+
+#### `posts`
+
+- `users can create posts`
+- `users can view all posts`
+- `users can update their own posts`
+- `users can delete their own posts`
+
+#### `votes`
+
+- `users can create votes`
+- `users can view all votes`
+- `users can update their own votes`
+- `users can delete their own votes`
+
+#### `comments`
+
+- `users can create comments`
+- `users can view all comments`
+- `users can update their own comments`
+- `users can delete their own comments`
+
+#### `conversations`
+
+- `users can view their own conversations`
+
+#### `conversation_members`
+
+- `users can view their own conversation members`
+
+#### `messages`
+
+- `users can create messages`
+- `users can view messages in their conversations`
 
 ### Functions
 
@@ -77,12 +125,8 @@ Creates the stored procedures we need;
 - `fetch_post`
 - `create_post`
 - `start_conversation`
-- `update_conversation`
-- `fetch_conversation_post`
-
-And the custom types;
-
-- `feed_post`
+- `update_conversation_timestamp`
+- `handle_new_user`
 
 ### Views
 
@@ -91,10 +135,6 @@ And the custom types;
 ```
 sql/7-views.sql
 ```
-
-Creates the views we need;
-
-- `conversations_with_last_message`
 
 ### Seed
 

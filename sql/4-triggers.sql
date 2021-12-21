@@ -1,16 +1,16 @@
 --
--- conversations
+-- users: create new public user on auth.users
 --
-create trigger conversations_update_timestamp
-  before update on conversations for each row
-  execute procedure moddatetime (updated_at);
+create trigger on_auth_user_created
+  after insert on auth.users for each row
+  execute procedure handle_new_user ();
 
 --
--- messages: update timestamps on conversations
+-- messages: update timestamp on conversations
 --
-create trigger messages_update_timestamps_on_conversations
+create trigger messages_update_timestamp_on_conversations
   after insert on messages for each row
-  execute procedure update_conversation ();
+  execute procedure update_conversation_timestamp ();
 
 --
 -- votes

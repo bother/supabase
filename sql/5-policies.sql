@@ -1,4 +1,17 @@
 --
+-- profiles
+--
+alter table profiles enable row level security;
+
+create policy "users can view all profiles" on profiles
+  for select
+    using (auth.role () = 'authenticated');
+
+create policy "users can update their own profiles" on profiles
+  for update
+    using (auth.uid () = id);
+
+--
 -- posts
 --
 alter table posts enable row level security;
@@ -66,14 +79,24 @@ create policy "users can delete their own comments" on comments
 --
 alter table conversations enable row level security;
 
-create policy "users can create conversations" on conversations
-  for insert
-    with check (auth.role () = 'authenticated');
-
 create policy "users can view their own conversations" on conversations
   for select
-    using (auth.uid () = one_id
-      or auth.uid () = two_id);
+    using (auth.uid () in (
+      select
+        user_id
+      from
+        conversation_members
+      where
+        conversation_id = conversations.id));
+
+--
+-- conversation members
+--
+alter table conversation_members enable row level security;
+
+create policy "users can view their own conversation members" on conversation_members
+  for select
+    using (auth.role () = 'authenticated');
 
 --
 -- messages
@@ -86,11 +109,11 @@ create policy "users can create messages" on messages
 
 create policy "users can view messages in their conversations" on messages
   for select
-    using (exists (
+    using (auth.uid () in (
       select
-        id
+        user_id
       from
-        conversations
+        conversation_members
       where
-        conversations.id = conversation_id and (conversations.one_id = auth.uid () or conversations.two_id = auth.uid ())));
+        conversation_id = messages.conversation_id));
 

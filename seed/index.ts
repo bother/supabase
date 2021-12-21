@@ -12,11 +12,11 @@ const main = async () => {
   console.log('votes', votes.data.length)
   console.log('comments', comments.data.length)
 
-  const data = [users.sql, posts.sql, votes.sql, comments.sql].map(data =>
+  const data = [users.sql, posts.sql, votes.sql, comments.sql].map((data) =>
     data.join('\n')
   )
 
-  ;['posts', 'votes', 'comments'].forEach(table =>
+  ;['posts', 'votes', 'comments'].forEach((table) =>
     data.push(
       `select pg_catalog.setval(pg_get_serial_sequence('${table}', 'id'), (select max(id) from ${table}) + 1);`
     )

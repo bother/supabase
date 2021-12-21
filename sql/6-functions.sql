@@ -112,110 +112,95 @@ create or replace function create_post (body text, latitude float, longitude flo
   language plpgsql
   as $$
 declare
-  nextid bigint;
+  "nextId" bigint;
 begin
   insert into posts (user_id, body, location)
     values (auth.uid (), body, st_setsrid (st_point (longitude, latitude), 4326))
   returning
-    id into nextid;
+    id into "nextId";
   insert into votes (user_id, post_id, vote)
-    values (auth.uid (), nextid, 1);
-  return nextid;
+    values (auth.uid (), "nextId", 1);
+  return "nextId";
 end;
 $$;
 
 --
 -- conversations: start
 --
-create or replace function start_conversation ("targetType" conversation_target_type, "targetId" bigint, "recipientId" uuid)
+create or replace function start_conversation ("postId" bigint, "recipientId" uuid, "commentId" bigint default null)
   returns bigint
   language plpgsql
+  security definer
   as $$
 declare
-  nextid bigint;
+  "nextId" bigint;
 begin
-  select
-    id into nextid
+  select distinct
+    conversations.id into "nextId"
   from
-    conversations
+    conversation_members
+    inner join conversations on conversations.id = conversation_members.conversation_id
   where
-    target_type = "targetType"
-    and target_id = "targetId"
-    and ((one_id in (auth.uid (), "recipientId")
-        or two_id in (auth.uid (), "recipientId")));
-  if nextid is not null then
-    return nextid;
+    conversation_members.user_id in (auth.uid (), "recipientId")
+    and conversations.post_id = "postId"
+    and case when "commentId" is null then
+      conversations.comment_id is null
+    else
+      conversations.comment_id = "commentId"
+    end;
+  if "nextId" is null then
+    insert into conversations (post_id, comment_id)
+      values ("postId", "commentId")
+    returning
+      id into "nextId";
+    insert into conversation_members (conversation_id, user_id, last_seen_at)
+      values ("nextId", auth.uid (), now());
+    insert into conversation_members (conversation_id, user_id)
+      values ("nextId", "recipientId");
   end if;
-  insert into conversations (target_type, target_id, one_id, two_id, one_last_seen)
-    values ("targetType", "targetId", auth.uid (), "recipientId", now())
-  returning
-    id into nextid;
-  return nextid;
+  return "nextId";
 end;
 $$;
 
 --
--- conversations: update on new message
+-- trigger: update conversation timestamp on new message
 --
-create or replace function update_conversation ()
+create or replace function update_conversation_timestamp ()
   returns trigger
   language plpgsql
+  security definer
   as $$
 begin
   update
     conversations
   set
-    updated_at = now(),
-    one_last_seen = case when one_id = new.user_id then
-      now()
-    else
-      one_last_seen
-    end,
-    two_last_seen = case when two_id = new.user_id then
-      now()
-    else
-      two_last_seen
-    end
+    updated_at = now()
   where
     id = new.conversation_id;
+  update
+    conversation_members
+  set
+    last_seen_at = now()
+  where
+    conversation_id = new.conversation_id
+    and user_id = auth.uid ();
   return new;
 end;
 $$;
 
 --
--- conversations: fetch post id
+-- trigger: create public.profiles from auth.users
 --
-create or replace function fetch_conversation_post ("conversationId" bigint)
-  returns bigint
+create or replace function handle_new_user ()
+  returns trigger
   language plpgsql
+  security definer
+  set search_path = public
   as $$
-declare
-  nextconversation conversations;
-  nextid bigint;
 begin
-  select
-    * into nextconversation
-  from
-    conversations
-  where
-    id = "conversationId"
-    and (one_id = auth.uid ()
-      or two_id = auth.uid ());
-  if nextconversation is null then
-    raise exception 'Conversation not found';
-  end if;
-  if nextconversation.target_type = conversation_target_type.post then
-    return nextconversation.target_id;
-  end if;
-  if nextconversation.target_type = conversation_target_type.comment then
-    select
-      post_id into nextid
-    from
-      comments
-    where
-      id = nextconversation.target_id;
-    return nextid;
-  end if;
+  insert into profiles (id)
+    values (new.id);
+  return new;
 end;
 $$;
 

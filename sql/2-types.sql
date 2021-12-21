@@ -13,10 +13,11 @@ create type feed_post as (
 );
 
 --
--- conversation: target_type
+-- profile: gender
 --
-create type conversation_target_type as enum (
-  'post',
-  'comment'
+create type profile_gender as enum (
+  'male',
+  'female',
+  'other'
 );
 

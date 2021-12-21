@@ -10,7 +10,7 @@ import {
   range,
   sample,
   subMinutes,
-  uniqBy
+  uniqBy,
 } from './lib'
 import { Comment, Data, Post, User, Vote } from './types'
 
@@ -20,7 +20,7 @@ export const getUsers = async (): Promise<Data<User>> => {
   const users = await getJson<Array<User>>('seed/json/users.json', () =>
     range(1_000).map(() => ({
       email: `${nanoid()}@bother.app`,
-      id: chance.guid()
+      id: chance.guid(),
     }))
   )
 
@@ -36,7 +36,7 @@ export const getUsers = async (): Promise<Data<User>> => {
 
   return {
     data: users,
-    sql: data
+    sql: data,
   }
 }
 
@@ -44,19 +44,19 @@ export const getPosts = async (users: Array<User>): Promise<Data<Post>> => {
   const data: Array<string> = []
 
   const posts = await getJson<Array<Post>>('seed/json/posts.json', () =>
-    range(1_000).map(index => ({
+    range(1_000).map((index) => ({
       body: chance.sentence(),
       created_at: formatISO(subMinutes(new Date(), random(1, 43_200))),
       id: index + 1,
       latitude: chance.latitude({
         max: 25.275249,
-        min: 25.143338
+        min: 25.143338,
       }),
       longitude: chance.longitude({
         max: 55.442353,
-        min: 55.289051
+        min: 55.289051,
       }),
-      user_id: sample(users).id
+      user_id: sample(users).id,
     }))
   )
 
@@ -74,7 +74,7 @@ export const getPosts = async (users: Array<User>): Promise<Data<Post>> => {
 
   return {
     data: posts,
-    sql: data
+    sql: data,
   }
 }
 
@@ -95,14 +95,14 @@ export const getVotes = async (
           ),
           post_id: post.id,
           user_id: sample(users).id,
-          vote: chance.bool() ? 1 : -1
+          vote: chance.bool() ? 1 : -1,
         }
       }),
-      vote => `${vote.post_id};${vote.user_id}`
+      (vote) => `${vote.post_id};${vote.user_id}`
     )
   )
 
-  chunk(votes, 1000).forEach(votes => {
+  chunk(votes, 1000).forEach((votes) => {
     data.push('insert into votes values')
 
     votes.forEach((vote, index) =>
@@ -118,7 +118,7 @@ export const getVotes = async (
 
   return {
     data: votes,
-    sql: data
+    sql: data,
   }
 }
 
@@ -132,7 +132,7 @@ export const getComments = async (
     'seed/json/comments.json',
     () =>
       uniqBy(
-        range(10_000).map(index => {
+        range(10_000).map((index) => {
           const post = sample(posts)
 
           return {
@@ -142,14 +142,14 @@ export const getComments = async (
             ),
             id: index + 1,
             post_id: post.id,
-            user_id: sample(users).id
+            user_id: sample(users).id,
           }
         }),
-        comment => `${comment.post_id};${comment.user_id}`
+        (comment) => `${comment.post_id};${comment.user_id}`
       )
   )
 
-  chunk(comments, 1000).forEach(comments => {
+  chunk(comments, 1000).forEach((comments) => {
     data.push('insert into comments values')
 
     comments.forEach((comment, index) =>
@@ -167,6 +167,6 @@ export const getComments = async (
 
   return {
     data: comments,
-    sql: data
+    sql: data,
   }
 }
