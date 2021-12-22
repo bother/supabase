@@ -122,6 +122,7 @@ Creates the stored procedures we need;
 - `feed_popular`
 - `feed_latest`
 - `feed_nearby`
+- `feed_user`
 - `fetch_post`
 - `create_post`
 - `start_conversation`

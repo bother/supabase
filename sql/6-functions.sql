@@ -79,6 +79,34 @@ order by
 $$;
 
 --
+-- feed: user
+--
+create or replace function feed_user ()
+  returns setof feed_post
+  language sql
+  as $$
+  select
+    posts.id,
+    posts.user_id,
+    posts.body,
+    coalesce(count(comments.id), 0) as comments,
+    coalesce(sum(votes.vote), 0) as votes,
+    st_y (posts.location) as latitude,
+    st_x (posts.location) as longitude,
+    posts.created_at
+  from
+    posts
+  left join comments on comments.post_id = posts.id
+  left join votes on votes.post_id = posts.id
+where
+  posts.user_id = auth.uid ()
+group by
+  posts.id
+order by
+  posts.created_at desc
+$$;
+
+--
 -- post: fetch
 --
 create or replace function fetch_post ("postId" bigint)
