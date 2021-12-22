@@ -175,7 +175,11 @@ begin
       conversations.comment_id is null
     else
       conversations.comment_id = "commentId"
-    end;
+    end
+  group by
+    conversations.id
+  having
+    count(conversations.id) = 2;
   if "nextId" is null then
     insert into conversations (post_id, comment_id)
       values ("postId", "commentId")
